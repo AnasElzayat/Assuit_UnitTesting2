@@ -10,6 +10,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -144,6 +145,116 @@ namespace CarFactoryAPI_test
             Assert.Contains("n't exist", result);
         }
 
-        
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////
+        /////////////////////////
+
+        [Fact]
+        [Trait("Author", "Anas")]
+        public void BuyCar_OwnerWithCar_haveCar()
+        {
+
+            Owner owner = new Owner() { Id = 10, Car =new Car()};
+            Car car = new Car() { Id = 5 };
+            carRepoMock.Setup(cm => cm.GetCarById(It.IsAny<int>())).Returns(car);
+            ownersRepoMock.Setup(om => om.GetOwnerById(10)).Returns(owner);
+
+            BuyCarInput buyCarInput = new BuyCarInput()
+            {
+                CarId = 1,
+                OwnerId = 10,
+                Amount = 5000
+            };
+
+            
+            string result = ownersService.BuyCar(buyCarInput);
+            outputHelper.WriteLine(result);
+
+            Assert.Contains("have car", result);
+
+        }
+
+
+        [Fact]
+        [Trait("Author", "Anas")]
+        public void BuyCar_HighPriceCar_Insufficient()
+        {
+
+            Owner owner = new Owner() { Id = 10 };
+            Car car = new Car() { Id = 5 , Price=7000 };
+            carRepoMock.Setup(cm => cm.GetCarById(It.IsAny<int>())).Returns(car);
+            ownersRepoMock.Setup(om => om.GetOwnerById(It.IsAny<int>())).Returns(owner);
+
+            BuyCarInput buyCarInput = new BuyCarInput()
+            {
+                CarId = 5,
+                OwnerId = 10,
+                Amount = 5000
+            };
+
+
+            string result = ownersService.BuyCar(buyCarInput);
+            outputHelper.WriteLine(result);
+
+            Assert.Contains("Insufficient", result);
+
+        }
+
+
+        [Fact]
+        [Trait("Author", "Anas")]
+        public void BuyCar_BuySuccess_Successfull()
+        {
+
+            Owner owner = new Owner() { Id = 10 };
+            Car car = new Car() { Id = 5, Price = 7000 };
+            carRepoMock.Setup(cm => cm.GetCarById(It.IsAny<int>())).Returns(car);
+            ownersRepoMock.Setup(om => om.GetOwnerById(It.IsAny<int>())).Returns(owner);
+            carRepoMock.Setup(cm => cm.AssignToOwner(car.Id,owner.Id)).Returns(true);
+
+            BuyCarInput buyCarInput = new BuyCarInput()
+            {
+                CarId = 5,
+                OwnerId = 10,
+                Amount = 8000
+            };
+
+
+            string result = ownersService.BuyCar(buyCarInput);
+            outputHelper.WriteLine(result);
+
+            Assert.Contains("Successfull", result);
+
+        }
+
+        [Fact]
+        [Trait("Author", "Anas")]
+        public void BuyCar_BuyUnSuccess_UnSuccessfull()
+        {
+
+            Owner owner = new Owner() { Id = 10 };
+            Car car = new Car() { Id = 5, Price = 7000 };
+            carRepoMock.Setup(cm => cm.GetCarById(It.IsAny<int>())).Returns(car);
+            ownersRepoMock.Setup(om => om.GetOwnerById(It.IsAny<int>())).Returns(owner);
+            carRepoMock.Setup(cm => cm.AssignToOwner(car.Id, owner.Id)).Returns(false);
+
+            BuyCarInput buyCarInput = new BuyCarInput()
+            {
+                CarId = 5,
+                OwnerId = 10,
+                Amount = 8000
+            };
+
+
+            string result = ownersService.BuyCar(buyCarInput);
+            outputHelper.WriteLine(result);
+
+            Assert.Contains("wrong", result);
+
+        }
+
+
+
     }
 }

@@ -41,19 +41,24 @@ namespace CarAPI.Services_BLL
         {
             var car = _carsRepository.GetCarById(input.CarId);
             if (car == null)
+                //
                 return "Car doesn't exist";
             if (car.Owner != null)
+                //
                 return "Already sold";
 
             var owner = _ownerRepository.GetOwnerById(input.OwnerId);
 
             if (owner == null)
+                //
                 return "Owner doesn't exist";
 
             if (owner.Car != null)
+                //
                 return "Already have car";
 
             if (car.Price > input.Amount)
+                //
                 return "Insufficient funds";
 
             var paymentResult = _cashService.Pay(car.Price);
